@@ -2,12 +2,15 @@ const AsyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
 const bcrypt = require('bcrypt')
 const registerUser = AsyncHandler(async (req, res) => {
-    const { f_name, l_name, email, password, gender, dob, department, image } = req.body;
+    const { f_name, l_name, email, password, gender,  image, department, role } = req.body;
 
     // Check if all fields are provided
-    if (!f_name || !l_name || !email || !password || !dob || !gender || !image || !department) {
+    if (!f_name || !l_name || !email || !password || !gender || !image || !department || !role ) {
         res.status(400);
         throw new Error('Please enter all the fields');
+    }   if(password.length < 6) {
+        res.status(400);
+        throw new Error("Password must be at least 6 characters");
     }
 
     // Check if the user already exists
@@ -25,7 +28,7 @@ const registerUser = AsyncHandler(async (req, res) => {
         console.log(hashedPassword)
 
         const createdUser = await User.create({
-            f_name, l_name, email, password: hashedPassword, dob, gender, image, department
+            f_name, l_name, email, password: hashedPassword, gender, image, department, role
         })
 
         res.status(201).json(createdUser);
@@ -36,48 +39,5 @@ const registerUser = AsyncHandler(async (req, res) => {
 });
 
 
-const loginUser = AsyncHandler(async (req, res) => {
-    // get the data from the user
-    const { email, password,department } = req.body;
-    // check if user adds the fields
-    if (!email || !password || !department) {
-        res.status(400)
-        throw new Error('Please enter all the fields');
-    }
+module.exports = { registerUser };
 
-    // check if email/user exists
-const userExists = await User.findOne({ email });
-    if (!userExists) {
-        res.status(404);
-        throw new Error('User not present');
-    } else {
-        // check if password also matches
-        if (await bcrypt.compare(password, userExists.password)) {
-            res.send(userExists);
-        }
-        // check if password is incorrect
-        else {
-            res.status(401);
-            throw new Error('Invalid password')
-        }
-    }
-
-     
-
-// Logout User
-const logoutUser = asyncHandler(async (req, res) => {
-    res.cookie("token", "", {
-        path: "/",
-        httpOnly: true,
-        expires: new Date(0),
-        // sameSite: "none",
-        // secure: true,
-    });
-    res.status(200).json({ message: "User logged out" });
-});
-
-       
-
-})
-
-module.exports = { registerUser, loginUser };
