@@ -16,22 +16,26 @@ const Register = () => {
 
   const { isError, isSuccess, message } = useSelector(state => state.auth);
 
-  // useEffect(() => {
-  //   if (isError) {
-  //     toast.error(message);
-  //   }
+  // Handle side effects with useEffect
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
 
-  //   if (isSuccess) {
-  //     navigate('/home');
-  //   }
+    if (isSuccess) {
+      toast.success('Registration successful!');
+      navigate('/home'); // Redirect after successful registration
+    }
 
-  //   dispatch(reset());
-  // }, [isError, isSuccess, message, dispatch, navigate]);
+    // Reset state when component unmounts or dependencies change
+    dispatch(reset());
+  }, [isError, isSuccess, message, dispatch, navigate]);
 
   const handleChange = (e) => {
-    setFormFields(prevValue => ({
-      ...prevValue,
-      [e.target.name]: e.target.value
+    const { name, value } = e.target;
+    setFormFields(prevState => ({
+      ...prevState,
+      [name]: value
     }));
   };
 
@@ -61,6 +65,7 @@ const Register = () => {
         className='form-control w-25 m-auto'
         type="text"
         placeholder='First name'
+        required
       />
       <input
         name='l_name'
@@ -69,6 +74,7 @@ const Register = () => {
         className='mt-4 form-control w-25 m-auto'
         type="text"
         placeholder='Last name'
+        required
       />
       <input
         name='email'
@@ -77,6 +83,7 @@ const Register = () => {
         className='form-control w-25 m-auto mt-4'
         type="email"
         placeholder='Email'
+        required
       />
       <input
         name='password'
@@ -85,6 +92,7 @@ const Register = () => {
         className='form-control w-25 m-auto mt-4'
         type="password"
         placeholder='Password'
+        required
       />
       <input
         name='confirm_pass'
@@ -93,12 +101,14 @@ const Register = () => {
         className='form-control w-25 m-auto mt-4'
         type="password"
         placeholder='Confirm password'
+        required
       />
       <select
         value={gender}
         onChange={handleChange}
         className='form-control w-25 mt-4 m-auto'
         name="gender"
+        required
       >
         <option value="">Select Gender</option>
         <option value="Male">Male</option>
@@ -111,6 +121,7 @@ const Register = () => {
         className='form-control w-25 m-auto mt-4'
         type="text"
         placeholder='Department'
+        required
       />
       <button className='form-control w-25 mx-auto mt-5 bg-primary text-white' type='submit'>
         Sign up
