@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom';
 
 const Register = () => {
   const [formFields, setFormFields] = useState({
-    f_name: '', l_name: '', email: '', password: '', confirm_pass: '', gender: '', department: ''
+    f_name: '', l_name: '', email: '', password: '', confirm_pass: '', gender: '', department: '', 
   });
 
   const { f_name, l_name, email, password, confirm_pass, gender, department } = formFields;
@@ -14,7 +14,7 @@ const Register = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
 
-  const { isError, isSuccess, message } = useSelector(state => state.auth);
+  const { isError, isSuccess, isLoading, message } = useSelector(state => state.auth);
 
   // Handle side effects with useEffect
   useEffect(() => {
@@ -24,7 +24,7 @@ const Register = () => {
 
     if (isSuccess) {
       toast.success('Registration successful!');
-      navigate('/home'); // Redirect after successful registration
+      navigate('/'); // Redirect after successful registration
     }
 
     // Reset state when component unmounts or dependencies change
@@ -44,6 +44,12 @@ const Register = () => {
 
     if (password !== confirm_pass) {
       toast.error('Passwords do not match');
+      return;
+    }
+
+   
+    if (!f_name || !l_name || !email || !password || !gender || !department) {
+      toast.error('Please fill in all required fields');
       return;
     }
 
@@ -123,8 +129,8 @@ const Register = () => {
         placeholder='Department'
         required
       />
-      <button className='form-control w-25 mx-auto mt-5 bg-primary text-white' type='submit'>
-        Sign up
+      <button className='form-control w-25 mx-auto mt-5 bg-primary text-white' type='submit' disabled={isLoading} >
+      {isLoading ? 'Signing Up...' : 'Sign up'}
       </button>
     </form>
   );

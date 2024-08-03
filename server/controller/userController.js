@@ -1,80 +1,96 @@
 const AsyncHandler = require('express-async-handler');
 const User = require('../models/userModel');
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt'); 
 
-// Registration handler
+
+
 const registerUser = AsyncHandler(async (req, res) => {
-    const { f_name, l_name, email, password, gender, image, department, role } = req.body;
+    const { f_name, l_name, email, password, gender, image, department } = req.body;
 
-    // Check if all required fields are provided
-    if (!f_name || !l_name || !email || !password || !gender) {
+    if (!f_name || !l_name || !email || !password || !gender || !department) {
         res.status(400);
-        throw new Error('Please enter all the required fields');
+        return res.json({ message: 'Please enter all required fields' });
     }
 
     if (password.length < 6) {
         res.status(400);
-        throw new Error("Password must be at least 6 characters");
+        return res.json({ message: 'Password must be at least 6 characters' });
     }
 
-    // Check if the user already exists
-    const isUserPresent = await User.findOne({ email });
 
+    const isUserPresent = await User.findOne({ email });
     if (isUserPresent) {
         res.status(400);
-        throw new Error('User already exists');
+        return res.json({ message: 'User already exists' });
     }
 
-    // Generate salt and hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Create the user
     const createdUser = await User.create({
-        f_name,
-        l_name,
-        email,
-        password: hashedPassword,
-        gender,
-        image: image || null,
-        department: department || null,
-        role: role || 'user'
+        f_name, l_name, email, password: hashedPassword, gender, image: image || null, department
     });
 
     res.status(201).json(createdUser);
 });
 
-// Login handler
+
+
+
 const loginUser = AsyncHandler(async (req, res) => {
-    const { email, password } = req.body;
-
-    // Check for user email
-    const user = await User.findOne({ email });
-
-    if (user && (await bcrypt.compare(password, user.password))) {
-        res.json({
-            _id: user.id,
-            f_name: user.f_name,
-            l_name: user.l_name,
-            email: user.email,
-            gender: user.gender,
-            image: user.image,
-            department: user.department,
-            role: user.role,
-            token: generateToken(user._id)
-        });
-    } else {
-        res.status(401);
-        throw new Error('Invalid email or password');
+    // get the data from the user
+    const { email, password, department } = req.body;
+    // check if user adds the fields
+    if (!email || !password || !department) {
+        res.status(400)
+        throw new Error('Please enter all the fields');
     }
-});
 
-// Generate JWT
-const generateToken = (id) => {
-    return jwt.sign({ id }, process.env.JWT_SECRET, {
-        expiresIn: '10d',
-    });
-};
+    // check if email/user exists
+const userExists = await User.findOne({ email });
+    if (!userExists) {
+        res.status(404);
+        throw new Error('User not present');
+    } else {
+        // check if password also matches
+        if (await bcrypt.compare(password, userExists.password)) {
+            res.send(userExists);
+        }
+        // check if password is incorrect
+        else {
+            res.status(401);
+            throw new Error('Invalid password')
+        }
+    } });
 
-module.exports = { registerUser, loginUser };
+        //  update user
+
+        const updateUser = AsyncHandler(async (req, res) => {
+            const user = await User.findById(req.user.id);
+            if (user) {
+              const { f_name, l_name, email, password, gender, department } = req.body;
+          
+              if (password) {
+                const salt = await bcrypt.genSalt(10);
+                user.password = await bcrypt.hash(password, salt);
+              }
+          
+              user.f_name = f_name || user.f_name;
+              user.l_name = l_name || user.l_name;
+              user.email = email || user.email;
+              user.password=password || user.password;
+              user.gender = gender || user.gender;
+              user.department = department || user.department;
+          
+              const updatedUser = await user.save();
+              res.status(200).json(updatedUser);
+            } else {
+              res.status(404);
+              throw new Error('User not found');
+            }
+          } );
+          
+         
+    
+
+module.exports = { registerUser,loginUser, updateUser };
