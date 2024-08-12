@@ -6,6 +6,8 @@ import Panel from '../components/Panel';
 
 
 const Dashboard = () => {
+  
+
   const { id } = useParams();
   const { user, isLoading, isSuccess, isError, message } = useSelector((state) => state.auth);
 
@@ -23,14 +25,7 @@ const Dashboard = () => {
         
         <Sidebar />
         <Panel />
-        {/* {isSuccess && user && (
-          <div className="user-info">
-            <h2>Welcome, {user.name}</h2>
-            <p>Email: {user.email}</p>
-            <p>User ID from URL: {id}</p>
-            Add more user information as needed
-          </div>
-        )} */}
+     
       </div>
     </div>
   );

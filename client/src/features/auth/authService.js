@@ -18,12 +18,13 @@ const logUser = async (userData) => {
     return response.data
 }
 
-
-async function updateUser(id, updateData) {
-    const user = await User.findByIdAndUpdate(id, updateData, { new: true });
-    return user;
-
-}
+const updateUser = async (userData) => {
+    const response = await axios.put(`${base_url}/profile-edit`, userData); // Make sure the endpoint matches your backend
+    if (response.data) {
+        localStorage.setItem('myUser', JSON.stringify(response.data));
+    }
+    return response.data;
+};
 
 
 

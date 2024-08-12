@@ -16,29 +16,11 @@ const userSchema = mongoose.Schema({
         unique: true,
         match: [/.+\@.+\..+/, 'Please enter a valid email address']
     },
-    password: {
-        type: String,
-        required: [true, 'Please enter password']
-    },
-    gender: {
-        type: String,
-        required: [true, 'Please enter gender'],
-        
-    },
-    image: {
-        type: String,
-        default: null
-    },
-    department: {
-        type: String,
-        default: null
-    },
-    role: {
-        type: String,
-        default: 'user',
-        enum: ['admin', 'user']
-    },
-}, {
+   attendance:{
+    type: String,
+        required: [true, 'Please mark attendance']
+   }
+}, { 
     timestamps: true
 });
 

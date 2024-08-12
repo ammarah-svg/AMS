@@ -27,7 +27,7 @@ export const registerUser = createAsyncThunk('auth/register', async (data, thunk
 export const loginUser = createAsyncThunk('auth/login', async (data, thunkAPI) => {
     try {
         const response = await authService.logUser(data);
-        localStorage.setItem('myUser', JSON.stringify(response)); // Store user in local storage
+        localStorage.setItem('myUser', JSON.stringify(response));
         return response;
     } catch (error) {
         const message = error.response?.data?.message || error.message || 'Something went wrong';
@@ -35,20 +35,18 @@ export const loginUser = createAsyncThunk('auth/login', async (data, thunkAPI) =
     }
 });
 
-
-
 export const updateUser = createAsyncThunk(
-    'auth/profile-edit',
+    'auth/updateUser',
     async (userData, { rejectWithValue }) => {
-      try {
-        const response = await axios.put('/api/user/profile-edit', userData); // Replace with your API endpoint
-        return response.data;
-      } catch (error) {
-        return rejectWithValue(error.response.data);
-      }
+        try {
+            const response = await axios.put('http://localhost:5000/api/user/profile-edit', userData); // Check your endpoint
+            return response.data;
+        } catch (error) {
+            const message = error.response?.data?.message || error.message || 'Something went wrong';
+            return rejectWithValue(message);
+        }
     }
-  );
-
+);
 
 export const authSlice = createSlice({
     name: 'auth',
@@ -62,11 +60,11 @@ export const authSlice = createSlice({
         },
         logout: (state) => {
             state.user = null;
-            localStorage.removeItem('myUser'); // Clear user from local storage on logout
+            localStorage.removeItem('myUser');
         },
         setUser(state, action) {
             state.user = action.payload;
-          },
+        },
     },
     extraReducers: (builder) => {
         builder
@@ -76,7 +74,6 @@ export const authSlice = createSlice({
             .addCase(registerUser.rejected, (state, action) => {
                 state.isLoading = false;
                 state.isError = true;
-                state.user = null;
                 state.message = action.payload;
             })
             .addCase(registerUser.fulfilled, (state, action) => {
@@ -99,20 +96,21 @@ export const authSlice = createSlice({
                 state.user = action.payload;
             })
             .addCase(updateUser.pending, (state) => {
-                state.loading = true;
-                state.error = null;
-              })
-              .addCase(updateUser.fulfilled, (state, action) => {
-                state.loading = false;
+                state.isLoading = true;
+                state.isError = false;
+            })
+            .addCase(updateUser.fulfilled, (state, action) => {
+                state.isLoading = false;
+                state.isSuccess = true;
                 state.user = action.payload;
-              })
-              .addCase(updateUser.rejected, (state, action) => {
-                state.loading = false;
-                state.error = action.payload;
-              });
-            
-
-    }
+                localStorage.setItem('myUser', JSON.stringify(action.payload)); // Update local storage
+            })
+            .addCase(updateUser.rejected, (state, action) => {
+                state.isLoading = false;
+                state.isError = true;
+                state.message = action.payload;
+            });
+    },
 });
 
 export const { reset, logout, setUser } = authSlice.actions;
