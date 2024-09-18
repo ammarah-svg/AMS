@@ -20,6 +20,7 @@ app.use(
 connect()
 
 app.use('/api/user/', require('./routes/userRoutes'));
+app.use('/api/attendance', require('./routes/attendanceRoutes'))
 app.use(handler);
 
 

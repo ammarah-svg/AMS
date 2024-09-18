@@ -27,8 +27,13 @@ const updateUser = async (userData) => {
 };
 
 
+const viewRecords = async () => {
+    const response = await axios.get(`${base_url}/view-records`);
+    console.log("Response from API:", response.data); // Check what the API is returning
+    return response.data;
+};
 
 
 export const authService = {
-    regUser, logUser, updateUser
-}
+    regUser, logUser, updateUser, viewRecords
+};

@@ -19,13 +19,16 @@ const Dashboard = () => {
     return <div>Error: {message}</div>;
   }
 
+
+
+
   return (
     <div className='dashboard-container pt-5 rounded-2'>
       <div className="dashboard-content shadow m-auto w-75 vh-50 row">
         
         <Sidebar />
         <Panel />
-     
+ 
       </div>
     </div>
   );
